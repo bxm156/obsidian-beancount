@@ -1,14 +1,14 @@
-import { App, PluginSettingTab, Setting, Plugin } from "obsidian";
+import { PluginSettingTab, Setting, Plugin } from "obsidian";
 
 export interface BeancountPluginSettings {
-  mainLedgerPath: string;
-  favaPath: string;
+  beanCheckPath: string;       // ← path to bean-check executable
+  beanQueryPath: string;       // ← optionally for bean-query
   defaultCurrency: string;
 }
 
 export const DEFAULT_SETTINGS: BeancountPluginSettings = {
-  mainLedgerPath: "Finance/ledger.md",
-  favaPath: "fava",
+  beanCheckPath: "bean-check",
+  beanQueryPath: "bean-query",
   defaultCurrency: "USD"
 };
 
@@ -32,14 +32,27 @@ export class BeancountSettingsTab extends PluginSettingTab {
     containerEl.createEl("h2", { text: "Beancount Plugin Settings" });
 
     new Setting(containerEl)
-      .setName("Main Ledger File Path")
-      .setDesc("Path to the main Beancount ledger file (within vault)")
+      .setName("Bean‑check Executable")
+      .setDesc("Path to the bean‑check command")
       .addText(text => text
-        .setPlaceholder("Finance/ledger.md")
-        .setValue(this.parent.settings.mainLedgerPath)
+        .setPlaceholder("bean-check")
+        .setValue(this.parent.settings.beanCheckPath)
         .onChange(async (value) => {
-          this.parent.settings.mainLedgerPath = value;
+          this.parent.settings.beanCheckPath = value.trim();
           await this.plugin.saveData(this.parent.settings);
         }));
+
+    new Setting(containerEl)
+      .setName("Bean‑query Executable")
+      .setDesc("Path to the bean‑query command for running queries")
+      .addText(text =>
+        text
+          .setPlaceholder("bean-query")
+          .setValue(this.parent.settings.beanQueryPath)
+          .onChange(async (value) => {
+            this.parent.settings.beanQueryPath = value.trim();
+            await this.plugin.saveData(this.parent.settings);
+          })
+        );
   }
 }
